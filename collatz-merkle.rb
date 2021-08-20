@@ -1,3 +1,4 @@
+require 'ruby-graphviz'
 #############################################
 #											#
 # 	Collatz-Merkle tree							#
@@ -28,10 +29,17 @@ class CollatzMerkleTree
 			nextLayer		= CollatzMerkleLayer.new
 			# Until the number of nodes in the next layer == the next Collatz number
 			(0...(nextCollatz @layers.last.length)).each{|nodeIDX|
-				nextLayer.pushNode CollatzMerkleChildNode.new(
-					@layers.last[(nodeIDX * 2) % @layers.last.length], 
-					@layers.last[(nodeIDX * 2 + 1) % @layers.last.length]
-				)
+				if nodeIDX < @layers.last.length
+					nextLayer.pushNode CollatzMerkleChildNode.new(
+						@layers.last[(nodeIDX * 2) % @layers.last.length], 
+						@layers.last[(nodeIDX * 2 + 1) % @layers.last.length]					
+					)
+				else
+					nextLayer.pushNode CollatzMerkleChildNode.new(
+						@layers.last[(rand(1000) + @layers.last.length) % @layers.last.length], 
+						@layers.last[(rand(1000) + @layers.last.length) % @layers.last.length]					
+					)
+				end
 			}
 			# Add the layer 
 			@layers.push nextLayer
@@ -43,9 +51,22 @@ class CollatzMerkleTree
 	def nextCollatz n
 		((n + 2) % 2 == 0) ? n / 2 : n * 3 + 1		
 	end
-	# Output some stuff see if it looks right
-	def print
-		(0...@layers.length).each{|idx| puts "#{idx}\t#{@layers[idx].length}"}
+	# Draw the graph  
+	def graphviz
+		g 	= GraphViz.new( :G, :type => :digraph )
+		gNodes	= {}
+		@layers.each{|layer| 
+			layer.eachNode{|node| gNodes[node.to_s]	= g.add_nodes(node.hash)}
+		}
+		@layers.each{|layer|
+			layer.eachNode{|node|
+				next if node.class == CollatzMerkleNode
+				gNode			= gNodes[node.to_s]
+				g.add_edges(gNodes[node.parent1.to_s], gNode)
+				g.add_edges(gNodes[node.parent2.to_s], gNode) 
+			}
+		}
+		g.output( :png => "hello_world.png" )
 	end
 end
 class CollatzMerkleLayer
@@ -61,6 +82,9 @@ class CollatzMerkleLayer
 	def [] idx
 		@nodes[idx]
 	end
+	def eachNode
+		@nodes.each{|node| yield node}
+	end
 end
 class CollatzMerkleNode
 	def initialize id, value
@@ -68,15 +92,16 @@ class CollatzMerkleNode
 		@value	= value
 	end
 	def hash
-		"#{@id}:#{value}"
+		"#{@id}:#{@value}"
 	end
 end
 class CollatzMerkleChildNode
+	attr_reader :parent1, :parent2
 	def initialize parent1, parent2
 		@parent1	= parent1
 		@parent2	= parent2
 	end
 	def hash
-		@parent1.hash + @parent2.hash
+		"#{@parent1.hash} #{@parent2.hash}"
 	end
 end
