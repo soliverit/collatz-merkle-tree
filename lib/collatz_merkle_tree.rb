@@ -73,7 +73,6 @@ class CollatzMerkleTree
 		}
 		ii = 0
 		(0...@layers.length - 1).each{|layerID|
-			puts @layers[layerID].length
 			@layers[layerID].eachNode{|node, idx|
 				# next if doneConnections[node.hash] && doneConnections[node.hash][node.parent1.hash] == true
 				# next if doneConnections[node.hash] && doneConnections[node.hash][node.parent2.hash] == true
