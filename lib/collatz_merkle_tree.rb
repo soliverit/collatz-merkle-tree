@@ -5,6 +5,7 @@ require 'ruby-graphviz'
 # Project
 require_relative "collatz_merkle_layer.rb"
 require_relative "collatz_merkle_leaf.rb"
+require_relative "graphviz_pair.rb"
 #############################################
 #											#
 # 	Collatz-Merkle tree							#
@@ -42,17 +43,10 @@ class CollatzMerkleTree
 			nextLayer		= CollatzMerkleLayer.new
 			# Until the number of nodes in the next layer == the next Collatz number
 			(0...(nextCollatz @layers.last.length)).each{|nodeIDX|
-				if nodeIDX < @layers.last.length
-					nextLayer.pushNode(
-						@layers.last[(nodeIDX * 2) % @layers.last.length], 
-						@layers.last[(nodeIDX * 2 + 1) % @layers.last.length]					
-					)
-				else
-					nextLayer.pushNode(
-						@layers.last[(rand(1000) + @layers.last.length) % @layers.last.length], 
-						@layers.last[(rand(1000) + @layers.last.length) % @layers.last.length]					
-					)
-				end
+				nextLayer.pushNode(
+					@layers.last[(nodeIDX * 2 + @layers.last.length) % @layers.last.length], 
+					@layers.last[(nodeIDX * 2 + 1 + @layers.last.length) % @layers.last.length]					
+				)
 			}
 			# Add the layer 
 			@layers.push nextLayer
@@ -64,19 +58,34 @@ class CollatzMerkleTree
 	def nextCollatz n
 		((n + 2) % 2 == 0) ? n / 2 : n * 3 + 1		
 	end
-	# Draw the graph  
-	def graphviz location
+	def gviz location
 		g 	= GraphViz.new( :G, :type => :digraph )
-		gNodes	= {}
-		@layers.each{|layer| 
-			layer.eachNode{|node| gNodes[node.to_s]	= g.add_nodes(node.hash)}
-		}
+		layerSets = []
+		@layers = @layers.reverse
+		nodeCounters = {}
+		doneConnections = {}
 		@layers.each{|layer|
+			layerSets.push({})
 			layer.eachNode{|node|
-				next if node.class == CollatzMerkleLeaf
-				gNode			= gNodes[node.to_s]
-				g.add_edges(gNodes[node.parent1.to_s], gNode)
-				g.add_edges(gNodes[node.parent2.to_s], gNode) 
+				layerSets.last[node.hash] 	= g.add_nodes(node.hash)
+				doneConnections[node.hash] 	= {}
+			}
+		}
+		ii = 0
+		(0...@layers.length - 1).each{|layerID|
+			puts @layers[layerID].length
+			@layers[layerID].eachNode{|node, idx|
+				# next if doneConnections[node.hash] && doneConnections[node.hash][node.parent1.hash] == true
+				# next if doneConnections[node.hash] && doneConnections[node.hash][node.parent2.hash] == true
+				# next if doneConnections[node.parent1.hash] && doneConnections[node.parent1.hash][node.hash] == true
+				# next if doneConnections[node.parent2.hash]	&& doneConnections[node.parent2.hash][node.hash] == true
+				gNode = layerSets[layerID][node.hash]
+				g.add_edges( layerSets[layerID + 1][node.parent1.hash], gNode)
+				g.add_edges( layerSets[layerID + 1][node.parent2.hash], gNode)
+				doneConnections[node.hash][node.parent1.hash] 	= true
+				doneConnections[node.hash][node.parent2.hash] 	= true	
+				
+				ii += 1
 			}
 		}
 		g.output( :png => location)

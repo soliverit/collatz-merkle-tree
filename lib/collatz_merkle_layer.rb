@@ -17,6 +17,6 @@ class CollatzMerkleLayer
 		@nodes[idx]
 	end
 	def eachNode
-		@nodes.each{|node| yield node}
+		@nodes.each_with_index{|node, index| yield node, index}
 	end
 end

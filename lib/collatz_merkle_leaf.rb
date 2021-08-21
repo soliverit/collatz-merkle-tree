@@ -1,3 +1,4 @@
+require "digest"
 class CollatzMerkleLeaf
 	attr_reader :hash
 	def initialize id, from, to, value

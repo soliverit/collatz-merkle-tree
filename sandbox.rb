@@ -1,14 +1,19 @@
-require "./collatz-merkle.rb"
-
+## Includes
+# Gems
+require 'ruby-graphviz'
+# Local
+require "./lib/collatz_merkle_tree.rb"
+## Do stuff
 # Make the tree
 tree	= CollatzMerkleTree.new
 # Create some transactions
-tree.addTransaction 0, "shoe"
-tree.addTransaction 1, "fire"
-tree.addTransaction 2, "water"
-tree.addTransaction 3, "bucket"
-tree.addTransaction 4, "caravan"
+tree.addTransaction "Dave", "Claire", 100
+tree.addTransaction "Dave", "Claire", 100
+tree.addTransaction "Tahir", "Rachel", 120
+# tree.addTransaction "Rachel", "Dave", 150
+# tree.addTransaction "Shaun", "Neha",  20
+# (0...100).each{ tree.addTransaction "Shaun", "Neha",  201}
 # Go
 tree.build
-# Debug
-tree.print
+# Draw
+tree.gviz "./collatz-merkle-tree.png"
