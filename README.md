@@ -1,9 +1,13 @@
-# collatz-merkle-tree
-## A Merkle tree but it's also a directed acyclic graph
+# Collatz-Merkle-tree
+## A Merkle tree but it's also a directed acyclic graph!
 
 ### What it does
 A set of transactions are added to the tree and paired to be linked to a node in the next layer. But, instead of n_current = n_previous / 2 nodes on each layer, n_current = n_previous % 2 == 0? n_prevoius / 2 : 3 * n_previous + 1
-### Example, six transactions
+
+### Why?
+Thanks for asking
+
+### Example
 
 ```Ruby
 ## Includes
