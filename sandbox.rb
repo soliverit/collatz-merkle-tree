@@ -13,9 +13,6 @@ tree.addTransaction "Tahir", "Rachel", 120
 tree.addTransaction "Tahir", "Rachel", 120
 tree.addTransaction "Tahir", "Rachel", 120
 tree.addTransaction "Tahir", "Rachel", 120
-# tree.addTransaction "Rachel", "Dave", 150
-# tree.addTransaction "Shaun", "Neha",  20
-# (0...100).each{ tree.addTransaction "Shaun", "Neha",  201}
 # Go
 tree.build
 # Draw
